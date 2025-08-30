@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - App de Nómina</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .icon-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .form-section {
+            background-color: #f8f9fa;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Centro de Configuración</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <div class="col-lg-8">
+                <form action="{{ url_for('config') }}" method="POST">
+                    <input type="hidden" name="form-config" value="1">
+
+                    <div class="form-section">
+                        <h4><i class="bi bi-cloud-arrow-up-fill"></i> API de Aportes en Línea</h4>
+                        <hr>
+                        <div class="mb-3">
+                            <label for="API_URL" class="form-label">URL Base de la API</label>
+                            <input type="text" class="form-control" id="API_URL" name="API_URL" value="{{ settings.get('API_URL', '') }}" placeholder="https://ejemplo.api.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="API_USER" class="form-label">Usuario API</label>
+                            <input type="text" class="form-control" id="API_USER" name="API_USER" value="{{ settings.get('API_USER', '') }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="API_PASSWORD" class="form-label">Contraseña API</label>
+                            <input type="password" class="form-control" id="API_PASSWORD" name="API_PASSWORD" placeholder="Dejar en blanco para no cambiar">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="bi bi-building-fill"></i> Datos del Empleador</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="EMPLEADOR_RAZON_SOCIAL" class="form-label">Razón Social</label>
+                                <input type="text" class="form-control" id="EMPLEADOR_RAZON_SOCIAL" name="EMPLEADOR_RAZON_SOCIAL" value="{{ settings.get('EMPLEADOR_RAZON_SOCIAL', '') }}">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="EMPLEADOR_NIT" class="form-label">NIT (sin DV)</label>
+                                <input type="number" class="form-control" id="EMPLEADOR_NIT" name="EMPLEADOR_NIT" value="{{ settings.get('EMPLEADOR_NIT', '') }}">
+                            </div>
+                            <div class="col-md-1 mb-3">
+                                <label for="EMPLEADOR_DV" class="form-label">DV</label>
+                                <input type="text" class="form-control" id="EMPLEADOR_DV" name="EMPLEADOR_DV" value="{{ settings.get('EMPLEADOR_DV', '') }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="EMPLEADOR_DIRECCION" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="EMPLEADOR_DIRECCION" name="EMPLEADOR_DIRECCION" value="{{ settings.get('EMPLEADOR_DIRECCION', '') }}">
+                        </div>
+                         <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="EMPLEADOR_PAIS" class="form-label">País (Código)</label>
+                                <input type="text" class="form-control" id="EMPLEADOR_PAIS" name="EMPLEADOR_PAIS" value="{{ settings.get('EMPLEADOR_PAIS', 'CO') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="EMPLEADOR_DEPARTAMENTO" class="form-label">Departamento (Código)</label>
+                                <input type="text" class="form-control" id="EMPLEADOR_DEPARTAMENTO" name="EMPLEADOR_DEPARTAMENTO" value="{{ settings.get('EMPLEADOR_DEPARTAMENTO', '') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="EMPLEADOR_MUNICIPIO" class="form-label">Municipio (Código)</label>
+                                <input type="text" class="form-control" id="EMPLEADOR_MUNICIPIO" name="EMPLEADOR_MUNICIPIO" value="{{ settings.get('EMPLEADOR_MUNICIPIO', '') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="bi bi-filetype-xml"></i> Configuración General XML</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="GEN_PERIODO_NOMINA" class="form-label">Periodo de Nómina (Código)</label>
+                                <input type="text" class="form-control" id="GEN_PERIODO_NOMINA" name="GEN_PERIODO_NOMINA" value="{{ settings.get('GEN_PERIODO_NOMINA', '5') }}" placeholder="Ej: 5 para Mensual">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="GEN_TIPO_XML" class="form-label">Tipo XML (Código)</label>
+                                <input type="text" class="form-control" id="GEN_TIPO_XML" name="GEN_TIPO_XML" value="{{ settings.get('GEN_TIPO_XML', '102') }}" placeholder="Ej: 102 para Nómina Individual">
+                            </div>
+                             <div class="col-md-4 mb-3">
+                                <label for="GEN_IDIOMA" class="form-label">Idioma (Código)</label>
+                                <input type="text" class="form-control" id="GEN_IDIOMA" name="GEN_IDIOMA" value="{{ settings.get('GEN_IDIOMA', 'es') }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="GEN_VERSION" class="form-label">Versión</label>
+                                <input type="text" class="form-control" id="GEN_VERSION" name="GEN_VERSION" value="{{ settings.get('GEN_VERSION', '1.0') }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-2">Guardar Toda la Configuración</button>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="form-section">
+                    <h4><i class="bi bi-person-plus-fill"></i> Crear Nuevo Usuario</h4>
+                    <hr>
+                    <form action="{{ url_for('config') }}" method="POST">
+                         <input type="hidden" name="form-user" value="1">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nombre de Usuario</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
+                            <label class="form-check-label" for="is_admin">
+                                Es Administrador
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Crear Usuario</button>
+                    </form>
+                </div>
+                 <div class="form-section">
+                     <h4><i class="bi bi-people-fill"></i> Usuarios Existentes</h4>
+                     <hr>
+                    <ul class="list-group">
+                        {% for user in all_users %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ user.username }} 
+                                {% if user.is_admin %}<span class="badge bg-primary">Admin</span>{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

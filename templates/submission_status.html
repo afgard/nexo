@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Estado del Envío #{{ submission.id }}{% endblock %}
+
+{% block content %}
+    <h1>Estado del Envío #{{ submission.id }}</h1>
+    <p>
+        <strong>Periodo:</strong> {{ submission.anio_periodo }}-{{ "%02d"|format(submission.mes_periodo) }}-{{ submission.tipo_periodo }} <br>
+        <strong>Fuente:</strong> {{ submission.fuente_datos }} <br>
+        <strong>Estado:</strong> <strong style="color: {% if 'ERROR' in submission.estado %}red{% elif 'VALIDADO' in submission.estado %}blue{% else %}green{% endif %};">{{ submission.estado }}</strong>
+    </p>
+
+    {% if errors %}
+        <h2>Se encontraron {{ errors|length }} errores de validación:</h2>
+        <p>
+            <a href="{{ url_for('download_errors', submission_id=submission.id) }}">
+                📥 Descargar Errores en Excel
+            </a>
+        </p>
+        <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+                <tr style="background-color: #f0f0f0;">
+                    <th>Fila Excel</th>
+                    <th>Campo/NIE</th>
+                    <th>Mensaje de Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                {# Mostramos solo los primeros 100 errores en pantalla #}
+                {% for error in errors[:100] %}
+                <tr>
+                    <td>{{ error.fila_excel }}</td>
+                    {# --- CORRECCIÓN: Usamos 'columna_excel' que es el nombre en la BD --- #}
+                    <td>{{ error.columna_excel }}</td>
+                    <td>{{ error.mensaje_error }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if errors|length > 100 %}
+            <p><i>Mostrando los primeros 100 de {{ errors|length }} errores. Descarga el archivo Excel para ver la lista completa.</i></p>
+        {% endif %}
+    {% else %}
+        <h2 style="color: green;">¡Validación de datos completada con éxito!</h2>
+        <p>El lote (Envío ID: {{ submission.id }}) está listo para ser enviado a Aportes en Línea.</p>
+        {% endif %}
+
+    <p style="margin-top: 20px;"><a href="{{ url_for('dashboard') }}">&laquo; Volver al Dashboard</a></p>
+
+{% endblock %}

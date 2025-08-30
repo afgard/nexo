@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Centro de Lotes Mensuales{% endblock %}
+{% block content %}
+    <h1>Centro de Lotes Mensuales</h1>
+    <form method="GET" action="{{ url_for('submission_center') }}">
+        <label for="year">Año:</label>
+        <input type="number" id="year" name="year" required value="{{ year }}">
+        <label for="month">Mes:</label>
+        <input type="number" id="month" name="month" required min="1" max="12" value="{{ '%02d'|format(month) }}">
+        <input type="submit" value="Cargar Lote del Periodo">
+    </form>
+    <hr>
+    {% if lote_actual %}
+        <h2>Lote de Trabajo para: {{ year }}-{{ "%02d".format(lote_actual.mes_periodo) }}</h2>
+        <p><strong>ID del Lote:</strong> {{ lote_actual.id }} | <strong>Estado General:</strong> <span style="font-weight: bold;">{{ lote_actual.estado_lote }}</span></p>
+        <div style="display: flex; gap: 20px; margin-top: 20px;">
+            <div style="border: 1px solid #ccc; padding: 15px; flex: 1; border-radius: 5px;">
+                <h3>Fuente: Aliados Laborales</h3>
+                <p><strong>Estado:</strong> <span style="font-weight: bold; color: {% if lote_actual.estado_aliados == 'VALIDADO' %}green{% elif lote_actual.estado_aliados == 'ERROR_VALIDACION' %}red{% else %}grey{% endif %};">{{ lote_actual.estado_aliados or 'Pendiente' }}</span></p>
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_source_files') }}">
+                    <input type="hidden" name="lote_id" value="{{ lote_actual.id }}">
+                    <input type="hidden" name="source_type" value="Aliados">
+                    <label for="file_aliados">Subir `Resultado.xlsx`:</label><br>
+                    <input type="file" id="file_aliados" name="file_aliados" accept=".xlsx" required>
+                    <br><br><input type="submit" value="Procesar Aliados">
+                </form>
+                {% if errores_aliados %}
+                <div style="margin-top:15px;">
+                    <h4>Errores Encontrados ({{ errores_aliados|length }}):</h4>
+                    <p><a href="{{ url_for('download_errors', lote_id=lote_actual.id, source='Aliados') }}">📥 Descargar Errores en Excel</a></p>
+                </div>
+                {% endif %}
+            </div>
+            <div style="border: 1px solid #ccc; padding: 15px; flex: 1; border-radius: 5px;">
+                <h3>Fuente: Sunshine</h3>
+                <p><strong>Estado:</strong> <span style="font-weight: bold; color: {% if lote_actual.estado_sunshine == 'VALIDADO' %}green{% elif lote_actual.estado_sunshine == 'ERROR_VALIDACION' %}red{% else %}grey{% endif %};">{{ lote_actual.estado_sunshine or 'Pendiente' }}</span></p>
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload_source_files') }}">
+                    <input type="hidden" name="lote_id" value="{{ lote_actual.id }}">
+                    <input type="hidden" name="source_type" value="Sunshine">
+                    <label for="files_sunshine">Subir los 15 archivos:</label><br>
+                    <input type="file" id="files_sunshine" name="files_sunshine[]" accept=".xlsx" multiple required>
+                    <br><br><input type="submit" value="Procesar Sunshine">
+                </form>
+                 {% if errores_sunshine %}
+                <div style="margin-top:15px;">
+                    <h4>Errores Encontrados ({{ errores_sunshine|length }}):</h4>
+                    <p><a href="{{ url_for('download_errors', lote_id=lote_actual.id, source='Sunshine') }}">📥 Descargar Errores en Excel</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if (lote_actual.estado_aliados == 'VALIDADO' or lote_actual.estado_sunshine == 'VALIDADO') and lote_actual.estado_lote != 'CONSOLIDADO' %}
+        <div style="margin-top: 30px; text-align: center; border: 2px solid green; padding: 20px; border-radius: 5px;">
+            <h2>Lote Listo para el Siguiente Paso</h2>
+            <p>Al menos una de las fuentes ha sido validada con éxito.</p>
+            <form method="POST" action="{{ url_for('consolidate_batch') }}">
+                <input type="hidden" name="lote_id" value="{{ lote_actual.id }}">
+                <input type="submit" value="Consolidar y Preparar Envío Final" style="font-size: 1.2em; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            </form>
+        </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Resultado del Procesamiento{% endblock %}
+
+{% block content %}
+    <h1>Resultado del Procesamiento de Nómina</h1>
+
+    <h2>Información Global Procesada</h2>
+    {% if global_info %}
+        <pre>{{ global_info | tojson(indent=2) }}</pre>
+    {% else %}
+        <p>No se procesó información global.</p>
+    {% endif %}
+
+    <h2>Errores de Validación Encontrados</h2>
+    {% if validation_errors %}
+        <p style="color: red;">Se encontraron {{ validation_errors | length }} errores:</p>
+        <ul>
+            {% for error in validation_errors %}
+                <li>
+                    <strong>Fila Excel:</strong> {{ error.fila if error.fila else 'N/A' }} |
+                    <strong>Campo/NIE:</strong> {{ error.campo_excel_mapeado if error.campo_excel_mapeado else 'N/A' }} |
+                    <strong>Valor Original:</strong> <pre style="display: inline;">{{ error.valor_original }}</pre> |
+                    <strong>Error:</strong> {{ error.mensaje }}
+                </li>
+            {% endfor %}
+        </ul>
+        <p><a href="{{ url_for('main.new_submission') }}">Volver a Nuevo Envío</a></p>
+    {% else %}
+        <p style="color: green;">¡No se encontraron errores de validación en los datos!</p>
+    {% endif %}
+
+    <h2>Muestra de Empleados Procesados (Primeros {{ empleados_procesados | length if empleados_procesados else 0 }})</h2>
+    {% if empleados_procesados %}
+        {% for empleado in empleados_procesados %}
+            <h3>Empleado (Documento: {{ empleado.numeroDocumento if empleado.numeroDocumento else 'No Encontrado' }})</h3>
+            <pre>{{ empleado | tojson(indent=2) }}</pre>
+            <hr>
+        {% endfor %}
+        {# Aquí podríamos añadir el botón "Enviar a API" si no hubo errores #}
+        {% if not validation_errors %}
+            <p style="margin-top: 20px; padding: 10px; background-color: #e6ffe6; border: 1px solid green;">
+                <strong>¡Datos validados!</strong> El siguiente paso sería implementar el envío a la API.
+            </p>
+        {% endif %}
+    {% elif not validation_errors %}
+        <p>No se procesaron datos de empleados (o la lista está vacía), pero no hubo errores de validación.</p>
+    {% endif %}
+
+    <p style="margin-top:30px;"><a href="{{ url_for('main.dashboard') }}">Volver al Dashboard</a></p>
+{% endblock %}

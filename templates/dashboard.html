@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <h1>Dashboard Principal</h1>
+    <p>Bienvenido, {{ current_user.username }}.</p>
+    
+    <p><a href="{{ url_for('submission_center') }}" style="font-size: 1.2em; padding: 10px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">+ Iniciar/Ver Lote Mensual</a></p>
+
+    <h2>Historial de Lotes Recientes</h2>
+    {% if lotes %}
+        <table border="1" cellpadding="5" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f0f0f0;">
+                    <th>ID Lote</th>
+                    <th>Periodo</th>
+                    <th>Estado Aliados</th>
+                    <th>Estado Sunshine</th>
+                    <th>Estado General</th>
+                    <th>Última Actualización</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lote in lotes %}
+                <tr>
+                    <td>{{ lote.id }}</td>
+		    <td>{{ lote.anio_periodo }}-{{ '%02d'|format(lote.mes_periodo) }}</td>
+                    <td style="color: {% if lote.estado_aliados == 'VALIDADO' %}green{% elif lote.estado_aliados == 'ERROR_VALIDACION' %}red{% endif %};">{{ lote.estado_aliados or 'Pendiente' }}</td>
+                    <td style="color: {% if lote.estado_sunshine == 'VALIDADO' %}green{% elif lote.estado_sunshine == 'ERROR_VALIDACION' %}red{% endif %};">{{ lote.estado_sunshine or 'Pendiente' }}</td>
+                    <td style="font-weight: bold;">{{ lote.estado_lote }}</td>
+                    <td>{{ lote.fecha_actualizacion.strftime('%Y-%m-%d %H:%M:%S') if lote.fecha_actualizacion else 'N/A' }}</td>
+                    <td style="display: flex; gap: 10px;">
+                        <a href="{{ url_for('submission_center', year=lote.anio_periodo, month=lote.mes_periodo) }}">Ver/Editar</a>
+                        <form method="POST" action="{{ url_for('delete_lote', lote_id=lote.id) }}" style="display: inline;" 
+                              onsubmit="return confirm('¿Estás seguro de que quieres BORRAR el Lote #{{ lote.id }} permanentemente? Esta acción no se puede deshacer.');">
+                            <button type="submit" style="background: none; border: none; color: red; cursor: pointer; text-decoration: underline; padding: 0;">Borrar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay lotes recientes.</p>
+    {% endif %}
+{% endblock %}
