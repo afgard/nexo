@@ -22,7 +22,7 @@ from models import User, Envios, ErroresProceso, Configuracion
 # --- Configuración de la App ---
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.secret_key = 'cambiar-esta-clave-por-algo-seguro-y-aleatorio!'
+app.secret_key = os.environ.get('SECRET_KEY', 'un-valor-predeterminado-seguro-para-desarrollo-local')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'nomina_app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(basedir, 'uploads')
@@ -330,18 +330,15 @@ def send_to_api(lote_id):
         "trabajador": lista_trabajadores # <--- Aquí usamos la lista completa por ahora
     }
     
-    # --- INICIO DE CÓDIGO DE DEPURACIÓN ---
-    # Vamos a usar solo el primer trabajador para la prueba
-    payload_maestro_debug = payload_maestro.copy()
-    payload_maestro_debug['trabajador'] = payload_maestro['trabajador'][:1]
-
-    # Guardamos el payload exacto que se va a enviar en un archivo
-    debug_file_path = os.path.join(basedir, 'final_payload_for_debug.json')
-    with open(debug_file_path, 'w', encoding='utf-8') as f:
-        json.dump(payload_maestro_debug, f, ensure_ascii=False, indent=4)
-    print(f"Payload de depuración guardado en: {debug_file_path}")
-    # --- FIN DE CÓDIGO DE DEPURACIÓN ---
-
+    # Opcional: Guardar el payload completo que se va a enviar para facilitar la depuración
+    try:
+        os.makedirs(app.config['TEMP_JSON_FOLDER'], exist_ok=True)
+        submission_file_path = os.path.join(app.config['TEMP_JSON_FOLDER'], f'submission_{lote_id}.json')
+        with open(submission_file_path, 'w', encoding='utf-8') as f:
+            json.dump(payload_maestro, f, ensure_ascii=False, indent=4)
+        print(f"Payload para lote {lote_id} guardado en: {submission_file_path}")
+    except Exception as e:
+        print(f"Advertencia: No se pudo guardar el payload de depuración. Error: {e}")
 
     api_url = settings.get('API_URL')
     api_user = settings.get('API_USER')
@@ -351,8 +348,8 @@ def send_to_api(lote_id):
         flash(f"Error de autenticación con la API: {error_token}", "danger")
         return redirect(url_for('final_submission_status', lote_id=lote.id))
     
-    # Enviamos el payload de depuración (1 solo trabajador)
-    track_id, error_envio = api_client.send_payroll_data(api_url, token, payload_maestro_debug)
+    # Enviamos el payload COMPLETO a la API
+    track_id, error_envio = api_client.send_payroll_data(api_url, token, payload_maestro)
     
     if error_envio:
         flash(f"Error al enviar el lote a la API: {error_envio}", "danger")

@@ -58,11 +58,12 @@ def send_payroll_data(base_api_url, token, payroll_data):
         "Content-Type": "application/json"
     }
     
-    # --- ESTA ES LA LÍNEA CORREGIDA ---
-    # El payload final debe ser un diccionario que contenga la lista de empleados.
-    final_payload = { "trabajadores": payroll_data }
+    # El payload final es el diccionario completo que ya viene preparado desde app.py.
+    final_payload = payroll_data
     
-    print(f"[API Client] Enviando lote de {len(payroll_data)} empleados a: {submission_url}")
+    # Se cuenta el número de trabajadores dentro del payload para el mensaje de log.
+    num_trabajadores = len(final_payload.get("trabajador", []))
+    print(f"[API Client] Enviando lote de {num_trabajadores} empleados a: {submission_url}")
     try:
         # Se incrementa el timeout por si la carga de datos es muy grande
         response = requests.post(submission_url, headers=headers, json=final_payload, timeout=120) 

@@ -104,13 +104,6 @@ CODIGOS_TIPO_MONEDA = [ # Tabla 5.3.2 Anexo Técnico v1.0 (ISO 4217)
     'COP' # Peso Colombiano
 ]
 
-# CODIGOS CIUDADES_BOGOTA
-CODIGOS_CIUDAD_BOGOTA = [
-    '11001', '05001', '50001', '85440', '08001', '13001', '23001',
-    '68001', '76001', '76892', '66001', '15001', '95001', '25817',
-    '47001', '73001', '13836', '76109'
-]
-
 # Diccionario para acceder a las listas correctas de códigos
 LISTAS_CODIGOS_VALIDOS = {
     "TipoDocumento": CODIGOS_TIPO_DOCUMENTO,
@@ -119,7 +112,7 @@ LISTAS_CODIGOS_VALIDOS = {
     "TipoContrato": CODIGOS_TIPO_CONTRATO,
     "Pais": CODIGOS_PAIS,
     "DepartamentoEstado": CODIGOS_DEPARTAMENTO_ESTADO,
-    "MunicipioCiudad": CODIGOS_CIUDAD_BOGOTA,
+    # "MunicipioCiudad" se valida por formato, no por lista.
     "TipoCuenta": CODIGOS_TIPO_CUENTA,
     "MetodoPago": CODIGOS_METODO_PAGO,
     "FormaPago": CODIGOS_FORMA_PAGO,
@@ -154,10 +147,10 @@ def convertir_a_entero(valor, errores_lista, fila_idx, campo_nie, es_obligatorio
         return None
 
 def validar_codigo_dian(valor, tipo_codigo, errores_lista, fila_idx, campo_nie, es_obligatorio=False):
-    """Valida si el código está en la lista DIAN, manejando correctamente los formatos."""
+    """Valida si el código está en la lista DIAN o si tiene el formato correcto (para Municipio)."""
     if pd.isna(valor) or str(valor).strip() == '':
         if es_obligatorio:
-            registrar_error(errores_lista, fila_idx, campo_nie, valor, f'Código DIAN obligatorio ({tipo_codigo}) vacío.')
+            registrar_error(errores_lista, fila_idx, campo_nie, valor, f'Código obligatorio ({tipo_codigo}) vacío.')
         return None
     
     valor_str = str(valor).strip()
@@ -168,7 +161,18 @@ def validar_codigo_dian(valor, tipo_codigo, errores_lista, fila_idx, campo_nie, 
                 valor_str = str(int(num_float))
         except (ValueError, TypeError):
             pass
-            
+
+    # Validación especial para MunicipioCiudad: se valida el formato en lugar de una lista.
+    if tipo_codigo == "MunicipioCiudad":
+        if not valor_str.isdigit():
+            registrar_error(errores_lista, fila_idx, campo_nie, valor, f'Código de Municipio "{valor_str}" debe ser numérico.')
+            return None
+        if len(valor_str) > 5:
+            registrar_error(errores_lista, fila_idx, campo_nie, valor, f'Código de Municipio "{valor_str}" no puede tener más de 5 dígitos.')
+            return None
+        # Normaliza a 5 dígitos (ej: '5001' -> '05001'). Se confía en la API para la validación final.
+        return valor_str.zfill(5)
+
     lista_valida = LISTAS_CODIGOS_VALIDOS.get(tipo_codigo)
     if not lista_valida:
         registrar_error(errores_lista, fila_idx, campo_nie, valor, f'Error interno: No se encontró lista de códigos para {tipo_codigo}.')
