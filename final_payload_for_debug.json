@@ -1,0 +1,106 @@
+{
+    "periodo": {
+        "fechaLiquidacionInicio": "2025-05-01",
+        "fechaLiquidacionFin": "2025-05-31",
+        "fechaGen": "2025-06-06"
+    },
+    "informacionGeneral": {
+        "periodoNomina": "5",
+        "tipoXML": "102",
+        "version": "1.0"
+    },
+    "lugarGeneracionXML": {
+        "pais": "CO",
+        "departamentoEstado": "11",
+        "municipioCiudad": "11001",
+        "idioma": "es"
+    },
+    "empleador": {
+        "razonSocial": "Aliados Laborales",
+        "nit": 900426164,
+        "dv": 3,
+        "pais": "CO",
+        "departamentoEstado": "11",
+        "municipioCiudad": "11001",
+        "direccion": "calle 88 22a 07"
+    },
+    "trabajador": [
+        {
+            "numeroDocumento": "1000002653",
+            "altoRiesgoPension": false,
+            "codigoTrabajador": "1000002653",
+            "comprobanteTotal": 1509620,
+            "deducciones": {
+                "salud": {
+                    "porcentaje": 4,
+                    "deduccion": 56940
+                },
+                "fondoPension": {
+                    "porcentaje": 4,
+                    "deduccion": 56940
+                },
+                "libranzas": {
+                    "libranza": [
+                        {
+                            "descripcion": "0",
+                            "deduccion": 0
+                        }
+                    ]
+                }
+            },
+            "deduccionesTotal": 113880,
+            "devengados": {
+                "basico": {
+                    "diasTrabajados": 30,
+                    "sueldoTrabajado": 1423500
+                },
+                "incapacidades": {
+                    "incapacidad": [
+                        {
+                            "cantidad": 0,
+                            "pago": 0
+                        }
+                    ]
+                },
+                "otrosConceptos": {
+                    "otroConcepto": [
+                        {
+                            "descripcionConcepto": "0",
+                            "conceptoS": 0,
+                            "conceptoNS": 0
+                        }
+                    ]
+                }
+            },
+            "devengadosTotal": 1623500,
+            "fechaIngreso": "2024-08-26",
+            "fechaRetiro": null,
+            "fechasPagos": [
+                {
+                    "fechaPago": "2025-05-31"
+                }
+            ],
+            "lugarTrabajoDepartamentoEstado": "11",
+            "lugarTrabajoDireccion": "CALLE 59B # 49B 23",
+            "lugarTrabajoMunicipioCiudad": "11001",
+            "lugarTrabajoPais": "CO",
+            "notas": null,
+            "pago": {
+                "forma": "1",
+                "metodo": "31"
+            },
+            "primerApellido": "IDARRAGA",
+            "primerNombre": "LEIDY",
+            "salarioIntegral": false,
+            "segundoApellido": "OSPINA",
+            "segundoNombre": "CAROLINA",
+            "subTipoTrabajador": "00",
+            "sueldo": 1423500,
+            "tiempoLaborado": "30",
+            "tipoDeContrato": "3",
+            "tipoDocumento": "13",
+            "tipoMoneda": "COP",
+            "tipoTrabajador": "01"
+        }
+    ]
+}
